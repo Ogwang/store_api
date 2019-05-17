@@ -1,6 +1,11 @@
 # Store List API
+[![Build Status](https://travis-ci.org/Ogwang/store_api.svg?branch=master)](https://travis-ci.org/Ogwang/store_api)
+
+[![Maintainability](https://api.codeclimate.com/v1/badges/3e67f735631c5b12e0b7/maintainability)](https://codeclimate.com/github/Ogwang/store_api/maintainability)
+[![Coverage Status](https://coveralls.io/repos/github/Ogwang/store_api/badge.svg?branch=master)](https://coveralls.io/github/Ogwang/store_api?branch=master)
 
 The api enables you to create/ register a user within the application.
+
 
 ## Usage
 - [Running the application](#starting-the-application)
