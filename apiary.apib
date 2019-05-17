@@ -1,80 +1,648 @@
 FORMAT: 1A
-HOST: http://polls.apiblueprint.org/
+HOST: http://store-api-v1.herokuapp.com
 
-# STORE RESTful API 
 
-Polls is a simple API allowing consumers to view polls and vote in them.
+# StoreList
 
-## Questions Collection [/questions]
+Storelist is an API allowing a user to register, login to create a store and
+store items.
 
-### List All Questions [GET]
+## User Registration [/auth/register]
 
-+ Response 200 (application/json)
+### Register a user [POST]
 
-        [
-            {
-                "question": "Favourite programming language?",
-                "published_at": "2015-08-05T08:40:51.620Z",
-                "choices": [
-                    {
-                        "choice": "Swift",
-                        "votes": 2048
-                    }, {
-                        "choice": "Python",
-                        "votes": 1024
-                    }, {
-                        "choice": "Objective-C",
-                        "votes": 512
-                    }, {
-                        "choice": "Ruby",
-                        "votes": 256
-                    }
-                ]
-            }
-        ]
-
-### Create a New Question [POST]
-
-You may create your own question using this action. It takes a JSON
-object containing a question and a collection of answers in the
-form of choices.
+You can create a user by sending a json request with an email and password. The
+password must be four(4) characters and more.
 
 + Request (application/json)
 
         {
-            "question": "Favourite programming language?",
-            "choices": [
-                "Swift",
-                "Python",
-                "Objective-C",
-                "Ruby"
-            ]
+            "email": "do@gmail.com",
+            "password": "987654321"
         }
 
 + Response 201 (application/json)
 
+        {
+            "auth_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1MDM0ODQ5OTYsImlhdCI6MTUwMzM5ODU4Niwic3ViIjo1fQ.GC6IEOohdo_xrz9__UeugIlir0qtJdKbEzBtLgqjt5A",
+            "message": "Successfully registered",
+            "status": "success"
+        }
+
++ Response 202 (application/json)
+
+        {
+            "message": "Missing or wrong email format or password",
+            "status": "failed"
+        }
+
++ Response 202 (application/json)
+
+        {
+            "message": "Failed, User already exists, Please sign In",
+            "status": "failed"
+        }
+
++ Response 202 (application/json)
+
+        {
+          "message": "Content-type must be json",
+          "status": "failed"
+        }
+
+## Login [/auth/login]
+
+### Login a user [POST]
+You can login a user by sending their email and password. Please take note
+of the auth token for you will need it for all user requests.
+
++ Request (application/json)
+
+        {
+            "email": "do@gmail.com",
+            "password": "123456"
+        }
+
++ Response 201 (application/json)
+
+        {
+            "auth_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1MDM0ODQ5OTYsImlhdCI6MTUwMzM5ODU4Niwic3ViIjo1fQ.GC6IEOohdo_xrz9__UeugIlir0qtJdKbEzBtLgqjt5A",
+            "message": "Successfully registered",
+            "status": "success"
+        }
+
++ Response 202 (application/json)
+
+        {
+          "message": "Content-type must be json",
+          "status": "failed"
+        }
+
++ Response 401 (application/json)
+
+        {
+          "message": "Missing or wrong email format or password is less than four characters",
+          "status": "failed"
+        }
+
++ Response 401 (application/json)
+
+        {
+          "message": "User does not exist or password is incorrect",
+          "status": "failed"
+        }
+
+## Logout [/auth/logout]
+
+### Log out a user [POST]
+
+You can log out a user by sending a request with their email and address. The
+auth token will then be invalidated.
+
++ Request (application/json)
+
     + Headers
 
-            Location: /questions/2
+            Authorization: Bearer JWT Token
+
++ Response 200 (application/json)
+
+        {
+            "message": "Successfully logged out",
+            "status": "success"
+        }
+
++ Response 403 (application/json)
+
+        {
+          "message": "Provide a valid auth token",
+          "status": "failed"
+        }
+
++ Response 403 (application/json)
+
+        {
+          "message": "Provide an authorization header",
+          "status": "failed"
+        }
+
++ Response 401 (application/json)
+
+        {
+          "message": "Signature expired, Please sign in again",
+          "status": "failed"
+        }
+
++ Response 401 (application/json)
+
+        {
+          "message": "Invalid token. Please sign in again",
+          "status": "failed"
+        }
+
+## Store Resources [/storelists{?page}{?q}]
+
+You can create, read, update and delete stores.
+
+NOTE: A valid token should be present in the header else a 401 or 403 response
+will be returned as seen in the log out section.
+
++ Parameters
+    + page(optional, number, `1`) - The page number
+    + q(optional, string) - Search query
+
+### Create a Store [POST]
+    Add a new Store attached to the user
+
++ name (required, string) -  Name of the Store
+
++ Request (application/json)
+
+
+    + Headers
+
+            Authorization: Bearer JWT Token
 
     + Body
 
             {
-                "question": "Favourite programming language?",
-                "published_at": "2015-08-05T08:40:51.620Z",
-                "choices": [
-                    {
-                        "choice": "Swift",
-                        "votes": 0
-                    }, {
-                        "choice": "Python",
-                        "votes": 0
-                    }, {
-                        "choice": "Objective-C",
-                        "votes": 0
-                    }, {
-                        "choice": "Ruby",
-                        "votes": 0
-                    }
-                ]
+              "name": "Uchumi"
             }
+
++ Response 201 (application/json)
+
+        {
+            "createdAt": "Wed, 23 Aug 2017 10:14:52 GMT",
+            "id": 2,
+            "modifiedAt": "Wed, 23 Aug 2017 10:14:52 GMT",
+            "name": "Uchumi",
+            "status": "success"
+        }
+
++ Response 202 (application/json)
+
+        {
+          "message": "Content-type must be json",
+          "status": "failed"
+        }
+
++ Response 400 (application/json)
+
+        {
+          "message": "Missing name attribute",
+          "status": "failed"
+        }
+
+### List all Stores [GET]
+
+You can get a list of all the Stores that below to a user. The results are
+paginated with the previous and next url.
+
+You can also search for a Store by its name using the q query parameter.
+
+
++ Request (application/json)
+
+
+    + Headers
+
+            Authorization: Bearer JWT Token
+
++ Response 200 (application/json)
+
+        {
+            "stores": [
+                {
+                    "createdAt": "2019-05-05T17:55:33.120344",
+                    "id": 2,
+                    "modifiedAt": "2019-05-05T17:55:33.120344",
+                    "name": "Property & Casualty Insurance"
+                },
+                {
+                    "createdAt": "2019-05-05T17:55:33.127347",
+                    "id": 3,
+                    "modifiedAt": "2019-05-05T17:55:33.127347",
+                    "name": "Technology"
+                },
+                {
+                    "createdAt": "2019-05-05T17:55:33.134350",
+                    "id": 4,
+                    "modifiedAt": "2019-05-05T17:55:33.134350",
+                    "name": "Waste Management"
+                },
+                {
+                    "createdAt": "2019-05-05T17:55:33.140357",
+                    "id": 5,
+                    "modifiedAt": "2019-05-05T17:55:33.140357",
+                    "name": "Auto Parts Wholesale"
+                }
+            ],
+            "count": 99,
+            "next": "http://127.0.0.1:5000/storelists/?page=2",
+            "previous": null,
+            "status": "success"
+        }
+
++ Response 200 (application/json)
+
+        {
+            "stores": [],
+            "count": 0,
+            "next": null,
+            "previous": null,
+            "status": "success"
+        }
+
+## Single Store Resources [/storelists/{store_id}]
+
++ Parameters
+    + store_id (required,number) - Id of the store to be returned
+
+### Get a Store [GET]
+
+You get a single store by specifying its Id.
+
++ Request (application/json)
+
+
+    + Headers
+
+            Authorization: Bearer JWT Token
+
++ Response 200 (application/json)
+
+        {
+            "store": {
+                "createdAt": "2017-08-24T19:56:07.942974",
+                "id": 3,
+                "modifiedAt": "2017-08-24T19:56:07.942974",
+                "name": "Uchumi"
+            },
+            "status": "success"
+        }
+
++ Response 400 (application/json)
+
+        {
+          "message": "Please provide a valid Store Id",
+          "status": "failed"
+        }
+
+### Edit a Store [PUT]
+
+You can update the name of the Store
+
++ name (required, string) -  Name of the Store
+
++ Request (application/json)
+
+
+    + Headers
+
+            Authorization: Bearer JWT Token
+
+    + Body
+
+            {
+              "name": "Uchumi"
+            }
+
++ Response 201 (application/json)
+
+        {
+            "createdAt": "Tue, 05 Sep 2017 17:55:33 GMT",
+            "id": 2,
+            "modifiedAt": "Tue, 05 Sep 2017 17:55:33 GMT",
+            "name": "Cooking",
+            "status": "success"
+        }
++ Response 202 (application/json)
+
+        {
+          "message": "Content-type must be json",
+          "status": "failed"
+        }
+
++ Response 400 (application/json)
+
+        {
+          "message": "Please provide a valid Store Id",
+          "status": "failed"
+        }
+
++ Response 400 (application/json)
+
+        {
+          "message": "No attribute or value was specified, nothing was changed",
+          "status": "failed"
+        }
+
++ Response 404 (application/json)
+
+        {
+          "message": "The Store with Id  does not exist",
+          "status": "failed"
+        }
+
+### Delete a Buket [DELETE]
+
++ Request (application/json)
+
+
+    + Headers
+
+            Authorization: Bearer JWT Token
+
++ Response 200 (application/json)
+
+        {
+            "message": "Successfully deleted the item from store with Id 3",
+            "status": "success"
+        }
+
++ Response 400 (application/json)
+
+        {
+          "message": "Please provide a valid Store Id",
+          "status": "failed"
+        }
+
++ Response 404 (application/json)
+
+        {
+          "message": "Store resource cannot be found",
+          "status": "failed"
+        }
+
+## Store Item Resources [/storelists/{store_id}/items{?page}/{?q}]
+
+You can create, read, update and delete store items.
+
+NOTE: A valid token should be present in the header else a 401 or 403 response
+will be returned as seen in the log out section.
+
+The Store Id must be valid else a response with code status 401 will be returned
+
++ Parameters
+    + store_id (required, number) - Id of the Store
+    + page (optional, number, `1`) - Page to return
+    + q (optional, string) - Search query string
+
+### Get all items within a store [GET]
+
+You can get all the items within the store if they exist others the items
+list will be empty.
+
+You can also use the query parameter q to search for an item name within the Store as showm below
+
++ Request (application/json)
+
+
+    + Headers
+
+            Authorization: Bearer JWT Token
+
++ Response 200 (application/json)
+
+        {
+            "count": 9,
+            "items": [
+                {
+                    "storeId": 3,
+                    "createdAt": "2019-05-05T17:55:34.814267",
+                    "description": "sed",
+                    "id": 88,
+                    "modifiedAt": "2019-05-05T17:55:34.814267",
+                    "name": "Tambee"
+                },
+                {
+                    "storeId": 3,
+                    "createdAt": "2019-05-05T17:55:35.768740",
+                    "description": "maecenas",
+                    "id": 166,
+                    "modifiedAt": "2019-05-05T17:55:35.768740",
+                    "name": "Cogilith"
+                },
+                {
+                    "storeId": 3,
+                    "createdAt": "2019-05-05T17:55:36.245435",
+                    "description": "volutpat",
+                    "id": 205,
+                    "modifiedAt": "2019-05-05T17:55:36.245435",
+                    "name": "Nlounge"
+                },
+                {
+                    "storeId": 3,
+                    "createdAt": "2019-05-05T17:55:37.489873",
+                    "description": "quam",
+                    "id": 304,
+                    "modifiedAt": "2019-05-05T17:55:37.489873",
+                    "name": "Flashset"
+                }
+            ],
+            "next": "http://127.0.0.1:5000/storelists/3/items/?page=2",
+            "previous": null,
+            "status": "success"
+        }
+
++ Response 200 (application/json)
+
+        {
+            "count": 0,
+            "items": [],
+            "next": null,
+            "previous": null,
+            "status": "success"
+        }
+
++ Response 401 (application/json)
+
+        {
+          "message": "Provide a valid Store Id",
+          "status": "failed"
+        }
+
+### Add an item to the Store [POST]
+
+You can also add an item to the Store by sending a name and an optional
+description for the item.
+
++ name (required, string) - Name of the item
++ description (optional, string) - Description of the item
+
++ Request (application/json)
+
+
+    + Headers
+
+            Authorization: Bearer JWT Token
+
+    + Body
+
+            {
+              "name": "item",
+              "description": "loren ipsum"
+            }
+
++ Response 201 (application/json)
+
+        {
+            "item": {
+                "storeId": 2,
+                "createdAt": "2019-05-06T19:44:14.606760",
+                "description": "loren ipsum",
+                "id": 1001,
+                "modifiedAt": "2019-05-06T19:44:14.606760",
+                "name": "item"
+            },
+            "status": "success"
+        }
+
++ Response 202 (application/json)
+
+        {
+          "message": "User has no Store with Id",
+          "status": "failed"
+        }
+
++ Response 401 (application/json)
+
+        {
+          "message": "No name or value attribute found",
+          "status": "failed"
+        }
+
++ Response 401 (application/json)
+
+        {
+          "message": "Content-type must be application/json",
+          "status": "failed"
+        }
+
+## Single Store Items Resource [/storelists/{store_id}/item/{item_id}]
+
+NOTE: A valid token should be present in the header else a 401 or 403 response
+will be returned as seen in the log out section.
+
+The Store Id must be valid else a response with code status 401 will be returned
+
++ Parameters
+    + store_id (required, number) - Id of the Store
+    + item_id (required, number) - Id of the Item
+
+### Get an Item from the Store [GET]
+
+You can get an Item from the Bucjet by specifying the Store Id and Item Id
+
++ Request (application/json)
+
+
+    + Headers
+
+            Authorization: Bearer JWT Token
+
++ Response 201 (application/json)
+
+        {
+            "item": {
+                "storeId": 2,
+                "createdAt": "2019-05-05T17:55:33.742090",
+                "description": "at",
+                "id": 2,
+                "modifiedAt": "2019-05-05T17:55:33.742090",
+                "name": "Feedmix"
+            },
+            "status": "success"
+        }
+
++ Response 202 (application/json)
+
+        {
+          "message": "Provide a valid item Id",
+          "status": "failed"
+        }
+
++ Response 202 (application/json)
+
+        {
+          "message": "User has no Store with Id",
+          "status": "failed"
+        }
+
+
+### Edit an Item within a Store [PUT]
+
+You can also edit an item within the Store.
+
++ name (required, string) - Name of the item
++ description (optional, string) - Description of the item
+
++ Request (application/json)
+
+
+    + Headers
+
+            Authorization: Bearer JWT Token
+
+    + Body
+
+            {
+              "name": "item",
+              "description": "loren ipsum"
+            }
+
++ Response 200 (application/json)
+
+        {
+            "item": {
+                "storeId": 2,
+                "createdAt": "2019-05-05T17:55:33.742090",
+                "description": "loren ",
+                "id": 2,
+                "modifiedAt": "2019-05-05T17:55:33.742090",
+                "name": "travel"
+            },
+            "status": "success"
+        }
+
++ Response 401 (application/json)
+
+        {
+          "message": "No name or value attribute found",
+          "status": "failed"
+        }
+
++ Response 401 (application/json)
+
+        {
+          "message": "No attributes specified in the request",
+          "status": "failed"
+        }
+
+### Delete an item from the Store [DELETE]
+
+You can delete an item from a Store by sending a delete request, by specifying
+the Store Id and Item Id.
+
++ Request (application/json)
+
+
+    + Headers
+
+            Authorization: Bearer JWT Token
+
++ Response 200 (application/json)
+
+        {
+            "message": "Successfully deleted the item from store with Id 2",
+            "status": "success"
+        }
+
++ Response 404 (application/json)
+
+        {
+          "message": "Item not found",
+          "status": "failed"
+        }
+
+
