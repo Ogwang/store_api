@@ -33,7 +33,7 @@ flask run
 ```
 
 ## Live Application
-This API is hosted [here](http://#.herokuapp.com) on [heroku](heroku.com)
+This API is hosted [here](https://store-api-v1.herokuapp.com/) on [heroku](https://store-api-v1.herokuapp.com/)
 
 ## API Documentation
 
